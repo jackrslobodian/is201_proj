@@ -12,20 +12,18 @@ The site will contain professional Bootstrap-themed pages, one hand-built colleg
 
 ## 2. Agreed site structure
 
-### `index.html` - Professional home page
+### `index.html` - Home page and HTML résumé
 
 - Use Bootstrap through a pinned CDN version, plus a small custom professional stylesheet.
-- Present Jack's name, a short professional headline, and a concise introduction.
-- Highlight finance, analytics, and data-visualization interests.
-- Include navigation to the résumé and college football page. The football page links to the app.
-- Use a simple single-column layout with headings, paragraphs, and lists.
-
-### `resume.html` - HTML résumé
-
-- Use HTML content, not a PDF embed or PDF download as the résumé itself.
-- Organize content into Education, Experience, Leadership & Service, Awards, Skills, and Interests.
-- Use concise bullets and simple sections with headings in one column.
+- Make this the public résumé and main home page. The résumé is written in HTML, not shown as a PDF.
+- Keep the résumé concise and use one column with sections for Education, Experience, Leadership & Service, Awards, Skills, and Interests.
 - Do not publish any contact information: omit the street address, phone number, and email address.
+- Include links at the top labeled “College Football - Scratch” and “Field Goal Game.”
+- Keep the listed information relevant, accurate, and easy to scan.
+
+### `resume.html` - Legacy address
+
+- Redirect to `index.html`, where the HTML résumé now lives.
 - Include the following résumé information from the provided source document:
 
   - Brigham Young University Marriott School of Business, B.S. Finance, expected April 2028.

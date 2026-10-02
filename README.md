@@ -4,8 +4,8 @@ A small static website with four pages, prepared for the GitHub repository `jack
 
 ## Files
 
-- `index.html`: professional home page using Bootstrap and `professional.css`.
-- `resume.html`: HTML résumé using the same styling. No personal contact information is included.
+- `index.html`: the HTML résumé and home page, styled with Bootstrap and `professional.css`. It contains no contact information.
+- `resume.html`: a small redirect to the home page for old résumé links.
 - `scratch.html`: college football page with its own `scratch.css`, the supplied stadium photo, nested lists, anchors, a YouTube player, and an interactive Tableau embed.
 - `app.html`: a five-kick field-goal game. Its CSS and JavaScript are inside the file.
 - `assets/les-stadium.jpg`: the stadium photo supplied for this project.
