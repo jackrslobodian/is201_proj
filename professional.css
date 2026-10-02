@@ -1,0 +1,100 @@
+/* Colors and spacing for the two Bootstrap pages. */
+body {
+  background-color: #0c1b32;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 900px;
+  padding: 24px;
+}
+
+h1, h2, h3 {
+  color: #edc87c;
+}
+
+h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 40px;
+}
+
+h2 {
+  font-size: 26px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+a {
+  color: #edc87c;
+}
+
+a:hover {
+  color: white;
+}
+
+.site-nav {
+  border-bottom: 1px solid #30425b;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.site-nav a {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.btn-primary {
+  background-color: #edc87c;
+  border-color: #edc87c;
+  color: #0c1b32;
+}
+
+.btn-primary:hover {
+  background-color: #ffe5af;
+  border-color: #ffe5af;
+  color: #0c1b32;
+}
+
+.home-section, .resume-section {
+  margin-top: 32px;
+}
+
+.resume-entry {
+  margin-bottom: 28px;
+}
+
+.entry-date {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.role {
+  margin-top: 6px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+footer {
+  border-top: 1px solid #30425b;
+  margin-top: 36px;
+  padding: 20px 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  background-color: #edc87c;
+  color: #0c1b32;
+  padding: 10px;
+}
+
+.skip-link:focus {
+  top: 10px;
+}

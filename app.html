@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Field-Goal Game | Jack Slobodian</title>
+  <style>
+    body {
+      background-color: #0c1b32;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .container { max-width: 650px; margin: auto; padding: 24px; }
+    h1 { color: #edc87c; }
+    a { color: #edc87c; margin-right: 16px; }
+    canvas { display: block; width: 100%; background-color: #226c48; }
+    label { display: block; margin-top: 16px; }
+    input { width: 100%; accent-color: #edc87c; }
+    button {
+      background-color: #edc87c;
+      color: #0c1b32;
+      padding: 10px 16px;
+      border: 0;
+      margin: 16px 8px 0 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .5; cursor: default; }
+    :focus-visible { outline: 3px solid #edc87c; outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav aria-label="Main navigation">
+      <a href="scratch.html">College football</a>
+      <a href="index.html">Home</a>
+    </nav>
+    <h1>Field-Goal Game</h1>
+    <p>Make five kicks. Aim against the wind and use enough power. Each made kick earns 3 points.</p>
+    <p id="conditions"></p>
+    <p id="score">0 points | 0 / 5 kicks taken</p>
+    <canvas id="field" width="600" height="380" role="img" aria-label="Green football field with gold goalposts and a moving ball.">
+      Your browser cannot display the field. Kick results appear below.
+    </canvas>
+
+    <label for="aim">Aim: <span id="aim-value">Center</span></label>
+    <input id="aim" type="range" min="-25" max="25" value="0" oninput="updateLabels()">
+    <label for="power">Power: <span id="power-value">75%</span></label>
+    <input id="power" type="range" min="40" max="100" value="75" oninput="updateLabels()">
+
+    <button id="kick" onclick="kick()">Kick</button>
+    <button id="next" onclick="nextKick()" hidden>Next kick</button>
+    <button onclick="restart()">Restart</button>
+    <p id="result" role="status" aria-live="polite">Read the wind before you kick.</p>
+    <p>If the wind blows right, aim left. Longer kicks need more power. A softer kick gives the wind more time to push the ball.</p>
+  </div>
+
+  <script>
+    // Simple game rules, not a realistic football physics simulator.
+    const canvas = document.getElementById('field');
+    const ctx = canvas.getContext('2d');
+    const aimInput = document.getElementById('aim');
+    const powerInput = document.getElementById('power');
+    const kickButton = document.getElementById('kick');
+    const nextButton = document.getElementById('next');
+    const result = document.getElementById('result');
+    let wind = 0;
+    let distance = 30;
+    let attempts = 0;
+    let makes = 0;
+    let phase = 'ready';
+    let timer = null;
+
+    function updateLabels() {
+      const aim = Number(aimInput.value);
+      document.getElementById('aim-value').textContent =
+        aim === 0 ? 'Center' : Math.abs(aim) + (aim < 0 ? ' left' : ' right');
+      document.getElementById('power-value').textContent = powerInput.value + '%';
+    }
+
+    function drawField(x, y) {
+      if (!ctx) return;
+      ctx.fillStyle = '#226c48';
+      ctx.fillRect(0, 0, 600, 380);
+      ctx.strokeStyle = '#80b394';
+      ctx.lineWidth = 1;
+      for (let line = 150; line < 380; line += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, line);
+        ctx.lineTo(600, line);
+        ctx.stroke();
+      }
+      // Goalposts: left edge 245, right edge 355, crossbar at 90.
+      ctx.strokeStyle = '#edc87c';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(245, 25);
+      ctx.lineTo(245, 90);
+      ctx.lineTo(355, 90);
+      ctx.lineTo(355, 25);
+      ctx.moveTo(300, 90);
+      ctx.lineTo(300, 125);
+      ctx.stroke();
+      ctx.fillStyle = '#a95f36';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 9, 6, -.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    function newConditions() {
+      distance = 25 + Math.floor(Math.random() * 26);
+      wind = 5 + Math.floor(Math.random() * 14);
+      if (Math.random() < .5) wind = -wind;
+      document.getElementById('conditions').textContent =
+        'Kick ' + (attempts + 1) + ' of 5 | ' + distance + ' yards | Wind: ' +
+        (wind < 0 ? '← ' : '→ ') + Math.abs(wind) + ' mph ' + (wind < 0 ? 'left' : 'right');
+      aimInput.value = 0;
+      powerInput.value = 75;
+      aimInput.disabled = false;
+      powerInput.disabled = false;
+      kickButton.disabled = false;
+      nextButton.hidden = true;
+      phase = 'ready';
+      updateLabels();
+      drawField(300, 330);
+    }
+
+    function calculateKick(aim, power, yards, breeze) {
+      const drift = breeze * 5 * (yards / 35) * (100 / power);
+      const x = 300 + aim * 6 + drift;
+      const requiredPower = yards + 20;
+      const tooShort = power < requiredPower;
+      const y = tooShort ? 105 + (requiredPower - power) * 3 : 60;
+      const made = !tooShort && x > 245 && x < 355;
+      let outcome = 'Made! +3 points.';
+      if (tooShort) outcome = 'Too short. Try more power.';
+      else if (x <= 245) outcome = 'Wide left. Aim farther right.';
+      else if (x >= 355) outcome = 'Wide right. Aim farther left.';
+      return { x, y, drift, made, outcome };
+    }
+
+    function finishKick(shot) {
+      clearInterval(timer);
+      timer = null;
+      phase = 'finished';
+      attempts++;
+      if (shot.made) makes++;
+      document.getElementById('score').textContent =
+        (makes * 3) + ' points | ' + attempts + ' / 5 kicks taken';
+      result.textContent = shot.outcome;
+      nextButton.hidden = attempts === 5;
+      if (attempts === 5) {
+        result.textContent += ' Final score: ' + (makes * 3) + ' / 15. Restart to play again.';
+      }
+    }
+
+    function kick() {
+      if (phase !== 'ready') return;
+      phase = 'flying';
+      aimInput.disabled = true;
+      powerInput.disabled = true;
+      kickButton.disabled = true;
+      const aim = Number(aimInput.value);
+      const shot = calculateKick(aim, Number(powerInput.value), distance, wind);
+      let progress = 0;
+      result.textContent = 'The kick is away…';
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      timer = setInterval(function () {
+        progress = reduceMotion ? 1 : Math.min(progress + .02, 1);
+        // The wind curves the ball more as the kick progresses.
+        const x = 300 + aim * 6 * progress + shot.drift * progress * progress;
+        const y = 330 + (shot.y - 330) * progress;
+        drawField(x, y);
+        if (progress === 1) finishKick(shot);
+      }, 20);
+    }
+
+    function nextKick() {
+      if (phase !== 'finished' || attempts === 5) return;
+      result.textContent = 'Read the new wind before you kick.';
+      newConditions();
+    }
+
+    function restart() {
+      clearInterval(timer);
+      timer = null;
+      attempts = 0;
+      makes = 0;
+      document.getElementById('score').textContent = '0 points | 0 / 5 kicks taken';
+      result.textContent = 'New challenge. Read the wind before you kick.';
+      newConditions();
+    }
+
+    newConditions();
+  </script>
+</body>
+</html>
